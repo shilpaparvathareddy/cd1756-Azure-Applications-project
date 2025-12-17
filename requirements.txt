@@ -5,6 +5,7 @@ Flask-Login==0.6.3
 Flask-SQLAlchemy==3.0.5
 Flask-Session==0.5.0
 Flask-WTF==1.2.1
+msal==1.26.0
 
 SQLAlchemy==2.0.25
 Werkzeug==2.2.3
