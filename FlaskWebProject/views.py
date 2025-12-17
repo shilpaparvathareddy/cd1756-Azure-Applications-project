@@ -1,6 +1,4 @@
-"""
-Routes and views for the flask application.
-"""
+
 from flask import render_template, flash, redirect, request, session, url_for
 from werkzeug.urls import url_parse
 from flask_login import (
@@ -18,9 +16,7 @@ imageSourceUrl = (
     f"{app.config['BLOB_CONTAINER']}/"
 )
 
-# -----------------------------
-# Home
-# -----------------------------
+
 @app.route("/")
 @app.route("/home")
 @login_required
@@ -28,9 +24,7 @@ def home():
     posts = Post.query.all()
     return render_template("index.html", posts=posts)
 
-# -----------------------------
-# Create Post
-# -----------------------------
+
 @app.route("/new_post", methods=["GET", "POST"])
 @login_required
 def new_post():
@@ -51,9 +45,7 @@ def new_post():
         imageSource=imageSourceUrl
     )
 
-# -----------------------------
-# Edit Post
-# -----------------------------
+
 @app.route("/post/<int:id>", methods=["GET", "POST"])
 @login_required
 def post(id):
@@ -73,9 +65,7 @@ def post(id):
         imageSource=imageSourceUrl
     )
 
-# -----------------------------
-# Login
-# -----------------------------
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
@@ -104,9 +94,7 @@ def login():
     auth_url = _build_auth_url(scopes=Config.SCOPE, state=session["state"])
     return render_template("login.html", form=form, auth_url=auth_url)
 
-# -----------------------------
-# Microsoft Auth Callback
-# -----------------------------
+
 @app.route(Config.REDIRECT_PATH)
 def authorized():
     if request.args.get("state") != session.get("state"):
@@ -129,18 +117,14 @@ def authorized():
 
     return redirect(url_for("home"))
 
-# -----------------------------
-# Logout
-# -----------------------------
+
 @app.route("/logout")
 def logout():
     logout_user()
     session.clear()
     return redirect(url_for("login"))
 
-# -----------------------------
-# MSAL Helpers
-# -----------------------------
+
 def _build_msal_app(cache=None, authority=None):
     return msal.ConfidentialClientApplication(
         Config.CLIENT_ID,
