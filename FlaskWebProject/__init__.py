@@ -25,7 +25,7 @@ app.logger.setLevel(logging.INFO)
 params = urllib.parse.quote_plus(
     "DRIVER={ODBC Driver 17 for SQL Server};"
     "SERVER=cms-flask-server.database.windows.net;"
-    "DATABASE=cms;"
+    "DATABASE=cmsdb;"
     "UID=cmsadmin;"
     "PWD=CMS4dmin;"
     "Encrypt=yes;"
