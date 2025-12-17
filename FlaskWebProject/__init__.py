@@ -1,7 +1,7 @@
 
-"""
-The flask application package.
-"""
+
+
+
 import logging
 import urllib
 from flask import Flask
@@ -13,15 +13,11 @@ from flask_session import Session
 app = Flask(__name__)
 app.config.from_object(Config)
 
-# ============================
-# LOGGING (required by rubric)
-# ============================
+
 logging.basicConfig(level=logging.INFO)
 app.logger.setLevel(logging.INFO)
 
-# ============================
-# DATABASE CONFIG (CRITICAL)
-# ============================
+
 params = urllib.parse.quote_plus(
     "DRIVER={ODBC Driver 17 for SQL Server};"
     "SERVER=cms-flask-server.database.windows.net;"
@@ -39,17 +35,12 @@ app.config["SQLALCHEMY_DATABASE_URI"] = (
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-# ============================
-# EXTENSIONS
-# ============================
 Session(app)
 db = SQLAlchemy(app)
 
 login = LoginManager(app)
 login.login_view = "login"
 
-# ============================
-# IMPORT ROUTES
-# ============================
+
 import FlaskWebProject.views
 
