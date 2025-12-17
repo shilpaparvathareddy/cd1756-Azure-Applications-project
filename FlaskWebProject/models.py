@@ -11,9 +11,9 @@ from flask import flash
 from azure.storage.blob import BlobServiceClient
 
 
-# =====================================================
-# Azure Blob Storage configuration
-# =====================================================
+# ==========================
+# Azure Blob Configuration
+# ==========================
 
 BLOB_CONTAINER = app.config.get("BLOB_CONTAINER")
 BLOB_ACCOUNT = app.config.get("BLOB_ACCOUNT")
@@ -27,17 +27,17 @@ blob_service_client = BlobServiceClient(
 container_client = blob_service_client.get_container_client(BLOB_CONTAINER)
 
 
-# =====================================================
+# ==========================
 # Helpers
-# =====================================================
+# ==========================
 
 def id_generator(size=32, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
 
-# =====================================================
+# ==========================
 # User Model
-# =====================================================
+# ==========================
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
@@ -61,9 +61,9 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-# =====================================================
+# ==========================
 # Post Model
-# =====================================================
+# ==========================
 
 class Post(db.Model):
     __tablename__ = 'posts'
@@ -73,4 +73,39 @@ class Post(db.Model):
     author = db.Column(db.String(75))
     body = db.Column(db.String(800))
     image_path = db.Column(db.String(100))
-    timestamp = db.Column(db.DateTime, index=True, default=datetime
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+    def __repr__(self):
+        return f'<Post {self.id}>'
+
+    def save_changes(self, form, file, user_id, new=False):
+        self.title = form.title.data
+        self.author = form.author.data
+        self.body = form.body.data
+        self.user_id = user_id
+
+        if file:
+            try:
+                original_filename = secure_filename(file.filename)
+                extension = original_filename.rsplit('.', 1)[1]
+                new_filename = f"{id_generator()}.{extension}"
+
+                blob_client = container_client.get_blob_client(new_filename)
+                blob_client.upload_blob(file, overwrite=True)
+
+                if self.image_path:
+                    try:
+                        container_client.delete_blob(self.image_path)
+                    except Exception:
+                        pass
+
+                self.image_path = new_filename
+
+            except Exception as e:
+                flash(f"Image upload failed: {e}")
+
+        if new:
+            db.session.add(self)
+
+        db.session.commit()
